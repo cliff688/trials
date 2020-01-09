@@ -2,25 +2,39 @@
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
+from django.utils import timezone
+from django.views import generic
 
 from .models import Question, Choice
 # Create your views here.
 
-def index(request):
-    latest_questions = Question.objects.order_by('-publication_date')[:5]
-    context={
-        'latest_question_list':latest_questions,
-    }
-    return render(request, 'polls/index.html', context)
 
-def details(request,question_id):
-    question=Question.objects.get(pk=question_id)
-    context={'question':question}
-    return render(request, 'polls/details.html', context)
+class IndexView(generic.ListView):
+    template_name = 'polls/index.html'
+    context_object_name = 'latest_question_list'
 
-def results(request, question_id):
-    question = Question.objects.get(pk=question_id)
-    return render(request,'polls/results.html',{'question':question})
+    def get_queryset(self):
+        """return the last five published questions."""
+        now = timezone.now()
+        return Question.objects.filter(publication_date__lte=now
+                                       ).order_by('publication_date')[:5]
+
+
+class DetailsView(generic.DetailView):
+    model = Question
+    template_name = 'polls/details.html'
+
+    def get_queryset(self):
+        """
+        Excludes any questions that aren't published yet.
+        """
+        return Question.objects.filter(publication_date__lte=timezone.now())
+
+
+class ResultView(generic.DetailView):
+    model = Question
+    template_name = 'polls/results.html'
+
 
 def vote(request,question_id):
     question = get_object_or_404(Question,pk=question_id)
