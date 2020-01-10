@@ -17,7 +17,7 @@ class IndexView(generic.ListView):
         """return the last five published questions."""
         now = timezone.now()
         return Question.objects.filter(publication_date__lte=now
-                                       ).order_by('publication_date')[:5]
+                                       ).order_by('-publication_date').exclude(choice__isnull=True)[:5]
 
 
 class DetailsView(generic.DetailView):
@@ -28,7 +28,8 @@ class DetailsView(generic.DetailView):
         """
         Excludes any questions that aren't published yet.
         """
-        return Question.objects.filter(publication_date__lte=timezone.now())
+        return Question.objects.filter(publication_date__lte=timezone.now()).exclude(choice__isnull=True)
+
 
 
 class ResultView(generic.DetailView):
