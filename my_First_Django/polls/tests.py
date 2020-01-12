@@ -79,7 +79,6 @@ def generate_n_random_old_questions(n):
     for i in range(n):
         create_question_with_choices(*random_old_question_args())
 
-
 class QuestionIndexViewTests(TestCase):
     def test_last_five_published_questions_are_displayed(self):
         """
@@ -157,5 +156,4 @@ class QuestionDetailsViewTests(TestCase):
         self.assertContains(response, past_question.question_text)
 
 class VoteDetailsViewTests(TestCase):
-
     pass
